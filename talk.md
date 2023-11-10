@@ -49,8 +49,15 @@ Lets give it a shot and modify our Dockerfile. First we are going to add an `as`
 the first image `build`. Next we introduce a second `FROM`. We are going to use `ubuntu:23.10` as
 the base for our runtime image. Nice, it hopefully will result in a smaller image size. All that is
 left to do, is to copy over the resulting binary to the second image and voila, we are done. Lets
-give it a shot and build the image. Nice! The resuling image has `101MB`. Still not great, but way
+give it a shot and build the image. Nice! The resulting image has `101MB`. Still not great, but way
 better than `1.01GB`.
+
+Another quick win would be to replace `ubuntu` with `alpine`. `alpine`, for all of you who do not
+know it, is a minimal Linux Distribution. It is often used as base image for containers. One thing
+to look out for though, is that it is based on `musl` instead of `glibc`. This could yield some
+funky problems, so be sure to properly test your apps. Ok with `ubuntu` replaced lets build the
+image. Now look at that. The resulting image, only has `15MB`. You heard that right `15MB`, vs the
+`101MB` with `ubuntu`.
 
 You might ask yourself, why are big container images even a problem? Networking is fast, so why
 should we care that our production image is 3GB in size?
