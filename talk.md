@@ -56,8 +56,67 @@ Another quick win would be to replace `ubuntu` with `alpine`. `alpine`, for all 
 know it, is a minimal Linux Distribution. It is often used as base image for containers. One thing
 to look out for though, is that it is based on `musl` instead of `glibc`. This could yield some
 funky problems, so be sure to properly test your apps. Ok with `ubuntu` replaced lets build the
-image. Now look at that. The resulting image, only has `15MB`. You heard that right `15MB`, vs the
+image. Now look at that. The resulting image, only has `15.3MB`. You heard that right `15MB`, vs the
 `101MB` with `ubuntu`.
+
+Believe it or not, we can even do better. While `alpine` is nice as a base image, `musl` might cause
+issues. Additionally, `alpine` still comes with an `apk` binary. We do not need it for our service,
+so lets get rid of it. There exist a special kind of base images, called distroless. They aim to
+ship only with the strictly necessary files, like SSL certificates and libssl. The two most known
+distroless image providers are Googles `distroless` project and Chainguard `chainguard-images`. Both
+of them are pretty similar. While `distroless` is based on a stripped to bare Debian, Chainguard
+images are wolfi based. `What on earth is wolfi?` I already hear you ask. In a nutshell, `wolfi` is
+using the `apk` package manager, but instead of using upstream `alpine` packages, it comes with its
+own set. The images provided by Chainguard are also build in a special way with a tool called
+`apko`. It allows you to specify the content of your image in a declarative way. We later have a
+closer look at it in action. Ok, so Chainguard offers a set of base images for quite a lot of
+services out there. To name a few: argocd, nginx, nodejs, postgres, and so on. They also offer a
+base image for busybox. Since busybox is also implementing AWK, we can replace the `alpine` image
+we use with `cgr.dev/chainguard/busybox:latest`. You know the drill by now. Lets build it and have
+a look at the resulting size. Alright, the image has `14.5MB` nice!
+
+Cool! We brought down the image size from a whopping `1.01GB` to `14.5MB`. I would say image size is
+somewhat important, but the gains we got from `alpine` are not even worth mentioning in my opinion.
+As already hinted in the switch to Chainguard, there are still unrelated binaries and packages
+installed in the base images. For example in `alpine` there is `apk`, as well as `busybox`, in the
+busybox Chainguard image there still is `busybox`, even though we only need `awk`. Don't get me
+started on the `ubuntu` image. There are all sorts of things installed, such as `perl`, `pgrep`, you
+get the gist. Every installed package in our container images, will increase the attack surface of
+our container at runtime. Of course a critical vulnerability in for example VIM alone will not make
+your container vulnerable, as it isn't directly exposed to the outside. The issue lies more with
+offering an potential attacker, who successfully exploited our service running to for example
+execute code, another link in his attack chain. Pretty much every software has bugs. Even powerful
+components such as `sudo` or any distributions package manager. Some of those vulnerabilities allow
+an attacker to gain higher privileges. This is where defense in depth and zero trust comes into
+play. By removing as much of the attack surface as possible, we make it harder for potential
+attackers to further traverse through our infrastructure. But how can we build such a minimal
+image, only containing the dependencies we need four our application. There are multiple ways. One
+of the simplest would be from simply starting from a `scratch` image. The `scratch` image is pretty
+much an empty image. This might cause some issues. For example our application might require system
+libraries to be in place (like libc), or to have a `/etc/passwd` file in place. For such use cases,
+the Chainguard static image might be for you. But what if we need some additional software installed?
+Like in our example of the vulnerable-awk-playground. Here we have a hard dependency on AWK. Since
+distroless containers do not ship a package manager, we will have a hard time adding additional
+packages. Of course we could just copy them in place in the image by hand, but this is most often
+harder done then said.
+
+Meet the solution to this problem `apko`. As said before, `apko` is used quite heavily in Chainguard
+images. The nice folks over at Chainguard even made it open source and usable for by pretty much
+everyone. As word of warning, there is some effort required in switching your application to
+build with `apko`. As said before and as the name implies, `apko` uses `APK` package manger index
+files under the hood to install packages. To be able to install our `vulnerable-awk-playground`
+application then in an `apko` build image, we need to somehow build an `APK` package out of it. Our
+friends over at Chainguard also got us covered here. They offer a second open source tool, called
+`melange`. With it, it is pretty easy to create `APK` packages from source files. As `apko` it
+follows an declarative approach, with a bit of imperative pipelining sprinkled in, when needed.
+
+Enough talk, lets get this APK party started.
+
+I already have `apko` and `melange` locally installed. We start out by creating th
+
+
+
+----
 
 You might ask yourself, why are big container images even a problem? Networking is fast, so why
 should we care that our production image is 3GB in size?
