@@ -36,7 +36,7 @@ as part of the Dockerfile build, which means, we need the Golang toolchain insta
 simple we are going to use `golang:1.21.3-bookworm` as our base image.
 
 Take a look at the resulting Dockerfile. It is pretty straight forward. Time to build the image.
-Alright, didn't take too long. Now, care to geuss the size of the resulting image? Any suggestions?
+Alright, didn't take too long. Now, care to guess the size of the resulting image? Any suggestions?
 A whopping `1.01GB`. The base image adds a hefty `822MB`. But fear not, we can do a lot better.
 
 We can step up our game with a nifty Docker feature called multi stage builds. Instead of cramming
@@ -188,16 +188,16 @@ repositories `apko` will get APK packages from, as well as the packages we want 
 image. We use the standard wolfi repo, as well as our local `packages` folder, which contains the
 result of the `melange` build. Next up, we setup the accounts used. It is best practice to not
 run your containers as root, hence we create a `nobody` user. Last, but not least, we specify the
-entrypoint. Here we simply run `vulnerable-awk-playground`. This should be it! Buiding the image is
-as simple as running `apko build`. This leaves us with a tar ball of the image. We can import it
-via the `docker load` command. Let's check for the image size by running `docker image ls`. It has
-`20.8MB`, not too bad. What about vulnerabilities? Trivy repots **0** vulnerabilities. This is
-amazing. Also exploitation just has become harder. The container doesn't even have a shell
+entrypoint. Here we simply run `vulnerable-awk-playground`. This should be it! Building the image
+is as simple as running `apko build`. This leaves us with a tar ball of the image. We can import
+it via the `docker load` command. Let's check for the image size by running `docker image ls`. It
+has `20.8MB`, not too bad. What about vulnerabilities? Trivy repots **0** vulnerabilities. This
+is amazing. Also exploitation just has become harder. The container doesn't even have a shell
 installed.
 
 Having a minimal container image is not a silver bullet though. Did you know that you can create a
 reverse shell via AWK as well? To further harden your service, you should apply a strategy called
-defense in depth. In a nutshell you can think of it like a medival castle. Instead of having a
+defense in depth. In a nutshell you can think of it like a medieval castle. Instead of having a
 single wall around it, they had multiple layers of defenses. Be it a moat with a draw bridge,
 or multiple rings of walls. Back in devops land, this pretty much translates to having security
 not just at your application level, but also in the container itself, as well as the underlying
@@ -205,7 +205,7 @@ infrastructure. Defense in Depth could pretty much be a talk on its own, but her
 how to further harden your services.
 
 The most impactful change you should make is, to not run your applications as the root user. If an
-attacker maanges to escape the container, by running as root in the container, they will have root
+attacker manges to escape the container, by running as root in the container, they will have root
 outside of the container. This is not universally true, as rootless container runtimes exists, but
 all in all, creating a dedicated user for your app in the image is the preferred way.
 
@@ -214,7 +214,7 @@ your services. For example, running our `vulnerable-awk-playground` as a contain
 `--privileged` flag would be a recipe for disaster. For an attacker it would then be trivial to
 escape from the container, by e.g. loading a kernel module.
 
-Next, when running the container, make sure it has a read only filesystem. This makes it once again
+Next, when running the container, make sure it has a read only file system. This makes it once again
 harder for attackers to for example download a crypto miner. There are still ways around this, but
 they will create more noise and are hence more probable to be detected.
 
