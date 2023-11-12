@@ -31,9 +31,9 @@ purposes.
 
 Let's dive right into containerizing the application then.
 
-Now lets get to it. We first use a simple Dockerfile approach. The application is going to be built
-as part of the Dockerfile build, which means, we need the Golang toolchain installed. To keep things
-simple we are going to use `golang:1.21.3-bookworm` as our base image.
+We first use a simple Dockerfile approach. The application is going to be built as part of the
+Dockerfile build, which means, we need the Golang toolchain installed. To keep things simple we are
+going to use `golang:1.21.3-bookworm` as our base image.
 
 Take a look at the resulting Dockerfile. It is pretty straight forward. Time to build the image.
 Alright, didn't take too long. Now, care to guess the size of the resulting image? Any suggestions?
@@ -105,13 +105,14 @@ All of this works pretty fine for adding new files in layers. Deleting a file is
 Let's have a look at the OCI image spec. It says that file deletion are handled by special whiteout
 files. They are empty files, with the same name as the file to delete, only to be prefixed by
 `.wh.`. In our docker example this means, that the layer created by running the `rm` command will
-contain a single empty file called in the `etc` folder called `.wh.secret.txt`.
+contain a single empty file in the `etc` folder called `.wh.secret.txt`.
 
-We can see all of this in action, by simply exporting our container image by running `docker image
-save insecure-layer-sample:latest -o image.tar`. Next we untar the file. The `manifest.json`. Tells
+Let's see all of this in action, by simply exporting our container image by running `docker image
+save insecure-layer-sample:latest -o image.tar`. Next we untar the file. The `manifest.json` tells
 us, that we need to look at the xxxxx file, as it is the last layer in our image. Opening the
 `xxxxx/layer.tar` file reveals the empty whiteout file under the `etc` folder.
 
+To head back to our questions, so how can the end user then still see the password?
 Let's check out the second layer and who would have thought, it contains our secret.
 
 While there certainly are ways of solving this issue in Dockerfiles, namely using secret mounts,
@@ -135,15 +136,15 @@ As the name already implies, it leverages the same package format as `apk`. This
 easily build images with packages from both wolfi and alpine upstream repos.
 
 The best part of `apko` then is, that it makes it trivial to build images only containing the
-strictly necessary parts you need. Each installed package in an container image will increase the
-attack surface of the container. Of course, a critical vulnerability in for example VIM can only
-be exploited, if an attacker manages to executes commands in our container. For this we need to
-have a RCE or command injection vulnerability. Each package then could act as the next link in
-the attackers attack chain to take over our service.
+strictly necessary parts you need. Each installed package in an container image will increase its
+attack surface. Of course, a critical vulnerability in for example VIM can only be exploited, if an
+attacker manages to executes commands in our container. For this we need to have a RCE or command
+injection vulnerability. Each package then could act as the next link in the attackers attack chain
+to take over our service.
 
-Another very nice side effect of having only the absolutely necessary packages installed the reduce
-CVE notification fatigue caused by image scanners. As mentioned before, do you really care that VIM
-is vulnerable in your container image?
+Another very nice side effect of having only the absolutely necessary packages installed, is the
+reduce CVE notification fatigue caused by image scanners. As mentioned before, do you really care
+that VIM is vulnerable in your container image?
 
 For example, let's compare the number of CVEs found in the various images we built today for the
 `vulnerable-awk-playground`. We will use `trivy` for that job. All we need to run is `trivy image`
@@ -160,22 +161,23 @@ We have a clear winner here. There is not a single vulnerability found in the ch
 our containerized application. I guess this is all that is required to say here.
 
 Back to `apko`. As bad luck would have it, `vulnerable-awk-playground` is susceptible to RCE and
-command injection. Let's transform it to only contain the absolute minimum of images installed.
+command injection. Let's transform it to only contain the absolute minimum of packages installed.
+A quick reminder, we have a hard dependency on `AWK`.
 
-There is already the first problem. `apko` can only install `APK`packages. How can we turn
+There is already the first problem. `apko` can only install `APK` packages. How can we turn
 `vulnerable-awk-playground` into an `APK`?
 
 Meet the second amazing open source tool created by Chainguard: `melange`. With `melange` building
-`APK` images is trivial. All you need to do is to once again specify how to build your app in an
+`APK` packages is trivial. All you need to do is to once again specify how to build your app in an
 declarative way and you are good to go.
 
-Enough talk, lets get this APK party started.
+Enough talk, lets get this `APK` party started.
 
 I already have `apko` and `melange` installed on my system. We start out by creating the APK
 package. For this we create a `melange.yaml`, specify some metadata, such as the name, setup which
-packages for our build environment and define a build pipeline. The pipeline itself is rather
-straight forward as Golang is pretty easy to build. Nice! Let's create a package signing key by
-running `melange keygen` and create the APK package by running the `melange build` command. I am
+packages for our build environment are required and define a build pipeline. The pipeline itself is
+rather straight forward as Golang is pretty easy to build. Nice! Let's create a package signing key
+by running `melange keygen` and create the APK package by running the `melange build` command. I am
 using the `docker` runner + some custom settings, since I am on MacOS. If I would run a proper OS
 like Linux, I could even make use of bubblewrap, which would allow us to build the package without
 requiring higher privileges.
@@ -184,19 +186,19 @@ With the build done, we now have the APK added to the `packages` folder.
 
 Next up, lets build our image. For this we create an `apko.yaml` file. First we need to specify
 the keyring that our build trusts when installing packages. We also need to declare a set of
-repositories `apko` will get APK packages from, as well as the packages we want installed in our
-image. We use the standard wolfi repo, as well as our local `packages` folder, which contains the
-result of the `melange` build. Next up, we setup the accounts used. It is best practice to not
-run your containers as root, hence we create a `nobody` user. Last, but not least, we specify the
-entrypoint. Here we simply run `vulnerable-awk-playground`. This should be it! Building the image
-is as simple as running `apko build`. This leaves us with a tar ball of the image. We can import
-it via the `docker load` command. Let's check for the image size by running `docker image ls`. It
-has `20.8MB`, not too bad. What about vulnerabilities? Trivy repots **0** vulnerabilities. This
-is amazing. Also exploitation just has become harder. The container doesn't even have a shell
-installed.
+repositories `apko` will use to get APK packages from, as well as the packages we want installed in
+our image. We use the standard wolfi repo, as well as our local `packages` folder, which contains
+the result of the `melange` build, we did before. Next up, we setup the accounts used. It is best
+practice to not run your containers as root, hence we create a `nobody` user. Last, but not least,
+we specify the entrypoint. Here we simply run `vulnerable-awk-playground`. This should be it!
+Building the image is as simple as running `apko build`. This leaves us with a tar ball of the
+image. We can import it via the `docker load` command. Let's check for the image size by running
+`docker image ls`. It has `20.8MB`, not too bad. It is a bit larget than the chainguard busybox
+based image though. What about vulnerabilities? Trivy repots **0** vulnerabilities. This is amazing.
+Also exploitation just has become harder. The container doesn't even have a shell installed.
 
 Having a minimal container image is not a silver bullet though. Did you know that you can create a
-reverse shell via AWK as well? To further harden your service, you should apply a strategy called
+reverse shell via AWK? To further harden your service, you should apply a strategy called
 defense in depth. In a nutshell you can think of it like a medieval castle. Instead of having a
 single wall around it, they had multiple layers of defenses. Be it a moat with a draw bridge,
 or multiple rings of walls. Back in devops land, this pretty much translates to having security
@@ -205,9 +207,9 @@ infrastructure. Defense in Depth could pretty much be a talk on its own, but her
 how to further harden your services.
 
 The most impactful change you should make is, to not run your applications as the root user. If an
-attacker manges to escape the container, by running as root in the container, they will have root
+attacker manages to escape the container, by running as root in the container, they will have root
 outside of the container. This is not universally true, as rootless container runtimes exists, but
-all in all, creating a dedicated user for your app in the image is the preferred way.
+all in all, creating a dedicated user for your app in the image is the best practice way.
 
 Additionally, try to run your containers only with the absolute minimum of capabilities required by
 your services. For example, running our `vulnerable-awk-playground` as a container with the
@@ -219,14 +221,23 @@ harder for attackers to for example download a crypto miner. There are still way
 they will create more noise and are hence more probable to be detected.
 
 Another very important tip, only use host mounts, if there is no way around them. Host volume
-mounts, or host path mounts in k8s punch a hole through the isolation we get from containers right
+mounts, or host path mounts in k8s, punch a hole through the isolation we get from containers right
 to the underlying host. There have already been numerous vulnerabilities with host paths, where it
 allowed processes within containers to read arbitrary files on the host.
 
-Alright, we are now nearing the end of my talk. If you would like to learn more about securely
-building containers or container security in general, I would recommend you hit over to my blog at
-patrickpichler.dev. It currently looks a bit empty, but trust me, I have some very interesting
-articles lined up.
+Let's sum up what we have learned today.
+
+* You can improve your container image size by quite a bit, when putting some thought into what base
+image to use
+* While Dockerfiles seem simple, they can cause you a lot of headaches
+* There exists good alternatives for Dockerfiles
+* Think about defense in depth, when running your services
+
+If you would like to learn more about securely building containers or container security in general,
+I would recommend you hit over to my blog at patrickpichler.dev. It currently looks a bit empty, but
+trust me, I have some very interesting articles lined up. Additionally, I can highly recommend you
+to checkout the book `Container Security` by Liz Rice. It is an amazing resource touching on all
+kinds of container security related topics.
 
 I hope you enjoyed the talk and if you have any questions, remarks or whatever, feel free to
 approach me and talk to me!
