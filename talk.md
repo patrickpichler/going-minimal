@@ -20,9 +20,10 @@ demo gods, that everything will workout fine 🙏.
 
 Introducing our demo app for today: vulnerable-awk-playground.
 
-This application provides a basic REST API designed to test AWK scripts against provided text.
-However, there's a crucial issue: the original developer overlooked the fact that AWK features
-various way of executing binaries.
+This application provides a basic REST API designed to test AWK scripts against provided text. AWK
+is a versatile programming language and command-line utility for text processing. It is known for
+its pattern scanning and processing capabilities. However, there's a crucial issue: the original
+developer overlooked the fact that AWK features various way of executing binaries.
 
 It requires an AWK binary to be present on the system to run.
 
