@@ -1,0 +1,120 @@
+:root {
+  --slidev-code-font-size: 1.1em!important;
+  --slidev-code-line-height: 1.3em!important;
+}
+
+.code-small-font {
+  --slidev-code-font-size: 0.9em!important;
+  --slidev-code-line-height: 1.1em!important;
+}
+
+.code-extra-small-font {
+  --slidev-code-font-size: 0.7em!important;
+  --slidev-code-line-height: 1em!important;
+}
+
+.highlighted-listing {
+  color: darkgray;
+}
+
+.highlighted-listing .current{
+  font-weight: 800;
+}
+
+.highlighted-listing .not-shown{
+  color: black;
+  visibility: hidden;
+}
+
+.full-center {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.full-center > * {
+  flex-grow: 1;
+}
+
+.stack {
+  position: relative;
+}
+
+.stack > *{
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.invert-colors {
+  background-color: black;
+  color: darkgray;
+}
+
+.invert-colors .highlighted-listing .current{
+  font-weight: 800;
+  color: white!important;
+}
+
+.red-danger {
+  color: #d20f39;
+}
+
+.white-black-shadow {
+  color: white;
+  text-shadow: 2px 1px black;
+}
+
+.black {
+  color: black;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.big-fat {
+    font-size: 4em;
+}
+
+.fancy-headline {
+    font-size: 4em;
+    font-weight: bolder;
+    font-family: "Georgia", sans-serif;
+}
+
+.fancy-headline-small {
+    font-size: 3em;
+    font-weight: bolder;
+    font-family: "Georgia", sans-serif;
+}
+
+.inactive {
+  color: #585b70;
+}
+
+.attribution {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: black;
+  padding-right: 10px;
+  font-size: 10px;
+}
+
+.text-content  p,.level-1 {
+  font-size: 1.5em;
+  line-height: 1.8em;
+}
+
+.text-content .level-2 {
+  font-size: 0.8em;
+  line-height: 1.0em;
+  padding-left: 50px;
+}
