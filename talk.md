@@ -32,9 +32,10 @@ purposes.
 
 Let's dive right into containerizing the application then.
 
-We first use a simple Dockerfile approach. The application is going to be built as part of the
-Dockerfile build, which means, we need the Golang toolchain installed. To keep things simple we are
-going to use `golang:1.21.3-bookworm` as our base image.
+We start by using a simple Dockerfile approach. Since we will be building the app as part of
+the Dockerfile, we start with the `golang:1.21.3-bookworm` image. We then copy over the files
+we need, invoke the compiler, move the binary to `/usr/bin` and finally set the entrypoint to
+`vulnerable-awk-playground`.
 
 Take a look at the resulting Dockerfile. It is pretty straight forward. Time to build the image.
 Alright, didn't take too long. Now, care to guess the size of the resulting image? Any suggestions?
@@ -53,26 +54,28 @@ are done. We can build the image now. Nice! The resulting image has `101MB`. Sti
 way better than `1.01GB`.
 
 Another quick win would be to replace `ubuntu` with `alpine`. `alpine`, for all of you who do not
-know it, is a minimal Linux Distribution. It is often used as a base image for containers. One thing
-to look out for though, is that it is using the `musl` implementation of libc instead of `glibc`.
-This could yield some funky problems, so be sure to properly test your apps. With `ubuntu` replaced
-lets build the image. Now look at that. The resulting image, only has `15.3MB`. You heard that right
-`15MB`, vs the `101MB` with `ubuntu`.
+know it, is a minimal Linux Distribution. It is often used as a base image for containers. Lets
+replace `ubuntu` and build the image. Now look at that. The resulting image, only has `15.3MB`. You
+heard that right `15MB`, vs the `101MB` with `ubuntu`.
 
 Believe it or not, we can even do better in regards to size. While `alpine` is already pretty minimal
 in the amount of things it ships by default, it still contains the `apk` package manager binary.
 Our application only depends on `awk`, so this is just dead weight.
 
-There is a special kind of base images, called distroless. The two most known distroless image
-providers are Googles `distroless` project and Chainguards `chainguard-images`. Both of them are
-pretty similar. While `distroless` is based on a stripped to bare version of Debian, Chainguard
-images are based on `wolfi`. `What on earth is wolfi?` I already hear you ask. `wolfi` is a
-distribution maintained by Chainguard. The magic part of it is, that it leverages the `apk` package
-manager, but instead of using upstream `alpine` packages, it has its own. Also worth noting is, that
-compared to `alpine`, `wolfi` ships with `GLIBC` instead of `musl`.
 
-Chainguard offers a pretty large set of container images. They range from tools such as ArgoCD, over
-nginx, as well as specialized images packaging language toolchains such as Golang or NodeJS.
+There is a special kind of base images, called distroless. The two most known distroless image
+projects are `distroless` and `chainguard-images`. `distroless` is maintained by Google and is
+based on a strip to the bare version of debian. It offers various flavors for different, such as
+`static`, which contains only bare minimum files, such as SSL certificates, `Java`, which features
+a JRE installed, `Python` and nodejs.
+
+`chainguard-images` on the other hand, are maintained by Chainguard. They offer a wide selection of
+different images, ranging from tools such as `ArgoCD` over `Nginx`, to language images for `Golang`
+as well as `NodeJS`. Chainguard-images are based on `Wolfi`.
+
+`What on earth is wolfi?` I already hear you ask. `wolfi` is a distribution maintained also by
+Chainguard. The magic part of it is, that it leverages the `apk` package manager, but instead of
+using upstream `alpine` packages, it has its own.
 
 Since `vulnerable-awk-playground` has a hard dependency on `awk`, we are going to use the
 `cgr.dev/chainguard/busybox:latest` base image. By now you should know the drill. Replace the base
@@ -91,21 +94,38 @@ somewhat new to the whole container world, this might be confusing. What if I te
 of the container image still has access to the secret?
 
 Before I explain you how, we need a bit of theory about the parts that make up a container image.
-Nowadays pretty much all container related tooling produce container image according to the OCI
-spec. OCI stands for Open Container Initiative. In a nutshell a container image is simply a tar ball
-containing a `manifest.json` that describes things such as the entrypoint command of the image, as
-well as the order of layers. All layers are then also stored as tar balls in the image. `Layers?`
-you might ask yourself. Yeah that is right, a container images consist of layers. Each instruction
-in a Dockerfile creates a new layer. In our example, there will be `4` layers created. In the end a
-layer is once again a tar ball containing files and folders. When you then create a container from
-that image, you can imagine the container runtime extracting all files from the tar balls one by
-one in the order specified by the `manifest.json`. This is not exactly what is happening, but it is
-good enough to for now.
+
+Nowadays, there are two established container image formats out there. The Docker Image Spec and
+the OCI Image spec.
+
+The Docker Image spec specifies a JSON based configuration format, that is specially geared towards
+Docker and running containers. Even though it is well adopted outside docker by the container
+ecosystem, there are still some things that are left to be desired to enable a broader range of use
+cases. To ensure compatibility between those new emerging tools, the OCI was founded.
+
+OCI stands for Open Container Initiative and it was founded back in 2015 by Docker and other leaders
+in the container ecosystem. It also is using a JSON based configuration format and is considered an
+industry standard for container images. It is designed to be able to cover a large variety of
+use-cases, which for example include storing binaries in container registries.
+
+The Docker Image Spec and OCI Image have a lot of similarities, as they have a large overlap in
+usage. What I am going to explain now is more or less true for both, but we will use the Docker
+image format, as it is easier to export images from docker that way.
+
+In a nutshell a container image is simply a tar ball containing a `manifest.json` that describes
+things such as a config file, as well as the layers, that make up the container. All layers are
+then also stored as tar balls in the image.
+
+Each instruction in a Dockerfile creates a new layer. In our example, there will be `4` layers
+created. In the end a layer is once again a tar ball containing files and folders. When you then
+create a container from that image, you can imagine the container runtime extracting all files from
+the tar balls one by one in the order specified by the `manifest.json`. This is not exactly what is
+happening, but it is good enough to for now.
 
 All of this works pretty fine for adding new files in layers. Deleting a file is a bit more tricky.
-Let's have a look at the OCI image spec. It says that file deletion are handled by special whiteout
-files. They are empty files, with the same name as the file to delete, only to be prefixed by
-`.wh.`. In our docker example this means, that the layer created by running the `rm` command will
+Let's have a look at the Docker image spec. It says that file deletion are handled by special
+whiteout files. They are empty files, with the same name as the file to delete, only to be prefixed
+by `.wh.`. In our docker example this means, that the layer created by running the `rm` command will
 contain a single empty file in the `etc` folder called `.wh.secret.txt`.
 
 Let's see all of this in action, by simply exporting our container image by running `docker image
