@@ -40,7 +40,9 @@ jobs:
         run: slidev build --base /going_minimal/
 
       - name: Debug
-        run: ls -al
+        run: |
+          ls -al
+          ls presentation
 
       - uses: actions/configure-pages@v3
 
