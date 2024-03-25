@@ -2,12 +2,12 @@ Hello there!
 
 Welcome everyone! Let's get started!
 
-Now first things first, my name is Patrick Pichler and I am currently employed at Dynatrace as a
-Product Security Engineer.
+Now first things first, my name is Patrick Pichler and I am currently employed at Cast.AI as a
+senior software engineer, developing a kubernetes security product.
 
 Originally I started my career as a Java Software Developer, but everything changed when I stumbled
-upon Linux and the cloud. This definitely transformed me into a full-on Linux nerd. I *used* arch
-btw. Do not question why I am currently on a Macbook though.
+upon Linux and the cloud. This definitely transformed me into a full-on Linux nerd.
+Do not question why I am currently on a Macbook though.
 
 With this out of the way, let me ask you some quick questions. Who of you here has heard of
 Distroless before? Who of has heard about Chainguard images?
@@ -116,11 +116,18 @@ In a nutshell a container image is simply a tar ball containing a `manifest.json
 things such as a config file, as well as the layers, that make up the container. All layers are
 then also stored as tar balls in the image.
 
-Each instruction in a Dockerfile creates a new layer. In our example, there will be `4` layers
-created. In the end a layer is once again a tar ball containing files and folders. When you then
-create a container from that image, you can imagine the container runtime extracting all files from
-the tar balls one by one in the order specified by the `manifest.json`. This is not exactly what is
-happening, but it is good enough to for now.
+If you take one thing from this talk, it should be that containers are like onions, they have layers.
+
+But how are those layers created?
+
+Most instructions used in a dockerfile will be executed during the container build time. The docker
+builder then checks what files did change during the execution, puts them into a tar ball and moves
+on to the next instruction. It also records the order of the tar balls into a field in the manifest.
+
+When you now try to run the container from an image, you can imaging that the container runtime
+(docker in our case) will exatract all the layer tar balls in the order as specified by the
+containers `manifest.json`. This is not exactly what is happening, but good enough to understand
+what is going on.
 
 All of this works pretty fine for adding new files in layers. Deleting a file is a bit more tricky.
 Let's have a look at the Docker image spec. It says that file deletion are handled by special

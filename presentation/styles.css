@@ -13,6 +13,11 @@
   --slidev-code-line-height: 1em!important;
 }
 
+.code-medium-font {
+  --slidev-code-font-size: 1em!important;
+  --slidev-code-line-height: 1.2em!important;
+}
+
 .highlighted-listing {
   color: darkgray;
 }

@@ -43,8 +43,7 @@ layout: full
 
 <!--
 Originally I started my career as a Java Software Developer, but everything changed when I stumbled
-upon Linux and the cloud. This definitely transformed me into a full-on Linux nerd. I *used* arch
-btw. Do not question why I am currently on a Macbook though.
+upon Linux and the cloud. This definitely transformed me into a full-on Linux nerd. Do not question the MacBook though.
 -->
 
 ---
@@ -1079,10 +1078,10 @@ image: /handsome-man-wearing-casual-outfit.jpg
 layout: full
 ---
 
-```docker {|3|7}
+```docker {|1|3|5|7|9|}
 FROM alpine:3.18
 
-RUN echo super-secure > /etc/secret.txt
+COPY super-secure.txt /etc/secret.txt
 
 RUN echo "do something with secret"
 
@@ -1096,75 +1095,6 @@ ENTRYPOINT [ "sh" ]
 * write some secret to file, but imagine instead it is a private ssh key used to fetch secret sauce from github
 * if you worked with containers, you probably already know where this is heading
 -->
-
----
-layout: full
----
-
-<div class="stack">
-
-<span>
-
-```shellsession
-> docker build . \
->       -t secret-example \
->       -f dockerfiles/Dockerfile.secret-example
-```
-
-</span>
-
-<v-clicks>
-
-<span>
-
-```shellsession
-> docker build . \
->       -t secret-example \
->       -f dockerfiles/Dockerfile.secret-example
-...
-=> exporting layers                                           1.0s
-=> writing image ....                                         0.0s
-=> naming to .../secret-example:latest                        0.0s
-```
-
-</span>
-
-<span>
-```shellsession
-> docker build . \
->       -t secret-example \
->       -f dockerfiles/Dockerfile.secret-example
-...
-=> exporting layers                                           1.0s
-=> writing image ....                                         0.0s
-=> naming to .../secret-example:latest                        0.0s
-
-> docker run --rm -it insecure-layers-sample:latest \
->           -c "cat /etc/secret.txt"
-```
-</span>
-
-<span>
-
-```shellsession
-> docker build . \
->       -t secret-example \
->       -f dockerfiles/Dockerfile.secret-example
-...
-=> exporting layers                                           1.0s
-=> writing image ....                                         0.0s
-=> naming to .../secret-example:latest                        0.0s
-
-> docker run --rm -it insecure-layers-sample:latest \
->           -c "cat /etc/secret.txt"
-
-cat: can't open '/etc/secret.txt': No such file or directory
-```
-
-</span>
-</v-clicks>
-
-</div>
 
 ---
 layout: center
@@ -1189,126 +1119,13 @@ image: /container-image.png
 
 <!--
 * before we answer question, a bit of theory
-* nowadays there are two established container formats out there
 -->
-
----
-layout: two-cols
-class: text-content
-transition: go-backwards | none
----
-
-# Docker Image Spec
-
-::right::
-
-# OCI Image Spec
-
-<!--
-* json based config format
-* specially geared towards docker + running containers
-* even it is used adapted outside docker in container ecosystem, leaves a lot to be desired
-
-* for this reason 2015 major players in container space joined and formed the Open Container Initiative
-* docker is part of it as well
--->
-
----
-layout: two-cols
-class: text-content
-transition: none
----
-
-# Docker Image Spec
-
-<br/>
-
-<v-clicks>
-
-JSON based configuration format
-
-Geared towards Docker
-
-Specific to container structure
-
-</v-clicks>
-
-::right::
-
-<h1 class="inactive">OCI Image Spec</h1>
-
----
-layout: two-cols
-class: text-content
-transition: none
----
-
-<div class="inactive">
-
-# Docker Image Spec
-
-<br/>
-
-JSON based configuration format
-
-Geared towards Docker
-
-Specific to container structure
-
-</div>
-
-::right::
-
-# OCI Image Spec
-
-<br/>
-
-<v-clicks>
-
-Governed Open Container Initiative
-
-Industry standard
-
-JSON based configuration format
-
-General purpose (e.g. storing binaries)
-
-</v-clicks>
-
----
-layout: two-cols
-class: text-content
-transition: none
----
-
-# Docker Image Spec
-
-<br/>
-
-JSON based configuration format
-
-Geared towards Docker
-
-Specific to container structure
-
-::right::
-
-# OCI Image Spec
-
-<br/>
-
-Governed Open Container Initiative
-
-Industry standard
-
-JSON based configuration format
-
-General purpose (e.g. storing binaries)
 
 ---
 layout: image
-image: /pexels-oksana-d-3358735.jpg
+image: /pexels-nutshell.jpg
 ---
+
 ---
 layout: section
 ---
@@ -1317,11 +1134,9 @@ layout: section
 
 <v-clicks>
 
-# Contains a `manifest.json`
+# Metadata
 
-# Contains layers
-
-# Layers = tar balls
+# Layers
 
 </v-clicks>
 
@@ -1331,6 +1146,271 @@ layout: center
 
 ![](/container-layers.png)
 
+---
+layout: section
+---
+
+<div class="grid grid-cols-[50%_50%] gap-6">
+
+<div>
+<h1>Docker</h1>
+</div>
+
+<div>
+<h1>OCI</h1>
+<h2>(Open Container Initiative)</h2>
+</div>
+
+</div>
+
+---
+layout: two-cols
+class: text-content
+transition: none
+---
+
+# Docker
+
+<v-clicks>
+
+Superset of OCI spec
+
+Specific extensions
+
+Governed by Docker
+
+</v-clicks>
+
+::right::
+
+<div class="inactive">
+
+# OCI
+
+</div>
+
+---
+layout: two-cols
+class: text-content
+transition: none
+---
+
+# Docker
+
+<div class="inactive">
+
+Governed by Docker
+
+Superset of OCI spec
+
+Specific extensions
+
+</div>
+
+::right::
+
+# OCI
+
+<v-clicks>
+
+Industry standard
+
+Governed by Open Container Initiative
+
+Part of Linux Foundation
+
+Very flexible (e.g. storying binaries)
+
+</v-clicks>
+
+---
+layout: full
+---
+
+<div class="stack">
+
+<span>
+
+```shellsession
+> docker build . \
+>       -t insecure-layers-sample \
+>       -f dockerfiles/Dockerfile.secret-example
+...
+
+```
+
+</span>
+
+<v-clicks>
+<span>
+
+```shellsession
+> docker build . \
+>       -t insecure-layers-sample \
+>       -f dockerfiles/Dockerfile.secret-example
+...
+=> exporting layers                                           1.0s
+=> writing image ....                                         0.0s
+=> naming to .../insecure-layers-sample:latest                0.0s
+```
+</span>
+<span>
+
+```shellsession
+> docker build . \
+>       -t insecure-layers-sample \
+>       -f dockerfiles/Dockerfile.secret-example
+...
+=> exporting layers                                           1.0s
+=> writing image ....                                         0.0s
+=> naming to .../insecure-layers-sample:latest                0.0s
+
+> docker image save insecure-layers-sample:latest | tar x
+```
+</span>
+<span>
+
+```shellsession
+> docker build . \
+>       -t insecure-layers-sample \
+>       -f dockerfiles/Dockerfile.secret-example
+...
+=> exporting layers                                           1.0s
+=> writing image ....                                         0.0s
+=> naming to .../insecure-layers-sample:latest                0.0s
+
+> docker image save insecure-layers-sample:latest | tar x
+
+> ls
+```
+</span>
+<span>
+
+```shellsession
+> docker build . \
+>       -t insecure-layers-sample \
+>       -f dockerfiles/Dockerfile.secret-example
+...
+=> exporting layers                                           1.0s
+=> writing image ....                                         0.0s
+=> naming to .../insecure-layers-sample:latest                0.0s
+
+> docker image save insecure-layers-sample:latest | tar x
+
+> ls
+2a92470a98202bbaf6b9cbcdf569761c2c420cc85220b23190212c6847bbd685/
+4977c9e6227bbefdb259abcf3fbcd50bdcec04a2c3b1ee54af85190164c78bb6/
+771911c5128d37c35fc8c9684af62bd42195c3593b462bbe7eb8a9d83cafc206/
+8d72a7003e030c102958f9d8e0871fd0e0e83bca94d18178615665f4081803a6.json
+b93731aff72308a4aba32de5ee9f50dc3a2e702627b6893691c7f3f099132aca/
+manifest.json
+repositories
+```
+</span>
+<span>
+
+```shellsession {17}
+> docker build . \
+>       -t insecure-layers-sample \
+>       -f dockerfiles/Dockerfile.secret-example
+...
+=> exporting layers                                           1.0s
+=> writing image ....                                         0.0s
+=> naming to .../insecure-layers-sample:latest                0.0s
+
+> docker image save insecure-layers-sample:latest | tar x
+
+> ls
+2a92470a98202bbaf6b9cbcdf569761c2c420cc85220b23190212c6847bbd685/
+4977c9e6227bbefdb259abcf3fbcd50bdcec04a2c3b1ee54af85190164c78bb6/
+771911c5128d37c35fc8c9684af62bd42195c3593b462bbe7eb8a9d83cafc206/
+8d72a7003e030c102958f9d8e0871fd0e0e83bca94d18178615665f4081803a6.json
+b93731aff72308a4aba32de5ee9f50dc3a2e702627b6893691c7f3f099132aca/
+manifest.json
+repositories
+```
+</span>
+</v-clicks>
+</div>
+
+---
+layout: full
+---
+
+manifest.json
+```json {|3|4-6|7-12|}
+[
+  {
+    "Config": "8d72a7<...>3a6.json",
+    "RepoTags": [
+      "insecure-layers-sample:latest"
+    ],
+    "Layers": [
+      "b93731aff<...>132aca/layer.tar",
+      "2a92470a9<...>bbd685/layer.tar",
+      "4977c9e62<...>c78bb6/layer.tar",
+      "771911c51<...>afc206/layer.tar"
+    ]
+  }
+]
+```
+---
+layout: full
+class: code-small-font
+---
+
+8d72a7...3a6.json (config)
+```json {|2-4|5-8|9-18}
+{
+  "architecture": "arm64",
+  "os": "linux",
+  "variant": "v8",
+  "config": {
+    "Env": [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ],
+    "Entrypoint": [ "sh" ],
+  },
+  "history": [
+    {
+      "created": "2023-09-28T20:39:33.966748405Z",
+      "created_by": "/bin/sh -c #(nop) ADD file:ff311...b41717 in / "
+    },
+    {
+      "created": "2023-09-28T20:39:34.079909813Z",
+      "created_by": "/bin/sh -c #(nop)  CMD [\"/bin/sh\"]",
+      "empty_layer": true
+    },
+  ]
+}
+```
+---
+layout: center
+---
+
+# A word about layers
+
+<!--
+* most commands in a docker file create individual layers
+* layer is delta of filesystem when executing specified docker command
+-->
+
+---
+layout: full
+---
+
+```docker {|1-7|9|}
+FROM alpine:3.18
+
+COPY super-secure.txt /etc/secret.txt
+
+RUN echo "do something with secret"
+
+RUN rm /etc/secret.txt
+
+ENTRYPOINT [ "sh" ]
+```
+
+---
+layout: center
 ---
 
 ```shellsession
@@ -1379,7 +1459,7 @@ class: code-small-font
 <span>
 
 ```shellsession
-> docker image save insecure-layers-sample:latest -o image.tar | tar x
+> cat manifest.json | jq
 ```
 
 </span>
@@ -1389,78 +1469,6 @@ class: code-small-font
 <span>
 
 ```shellsession
-> docker image save insecure-layers-sample:latest -o image.tar | tar x
-
-> ls
-```
-
-</span>
-
-<span>
-
-```shellsession
-> docker image save insecure-layers-sample:latest -o image.tar | tar x
-
-> ls
-2a92470a98202bbaf6b9cbcdf569761c2c420cc85220b23190212c6847bbd685/
-4977c9e6227bbefdb259abcf3fbcd50bdcec04a2c3b1ee54af85190164c78bb6/
-771911c5128d37c35fc8c9684af62bd42195c3593b462bbe7eb8a9d83cafc206/
-8d72a7003e030c102958f9d8e0871fd0e0e83bca94d18178615665f4081803a6.json
-b93731aff72308a4aba32de5ee9f50dc3a2e702627b6893691c7f3f099132aca/
-manifest.json
-repositories
-```
-</span>
-
-<span>
-
-```shellsession {9}
-> docker image save insecure-layers-sample:latest -o image.tar | tar x
-
-> ls
-2a92470a98202bbaf6b9cbcdf569761c2c420cc85220b23190212c6847bbd685/
-4977c9e6227bbefdb259abcf3fbcd50bdcec04a2c3b1ee54af85190164c78bb6/
-771911c5128d37c35fc8c9684af62bd42195c3593b462bbe7eb8a9d83cafc206/
-8d72a7003e030c102958f9d8e0871fd0e0e83bca94d18178615665f4081803a6.json
-b93731aff72308a4aba32de5ee9f50dc3a2e702627b6893691c7f3f099132aca/
-manifest.json
-repositories
-```
-</span>
-
-<span>
-
-```shellsession
-> docker image save insecure-layers-sample:latest -o image.tar | tar x
-
-> ls
-2a92470a98202bbaf6b9cbcdf569761c2c420cc85220b23190212c6847bbd685/
-4977c9e6227bbefdb259abcf3fbcd50bdcec04a2c3b1ee54af85190164c78bb6/
-771911c5128d37c35fc8c9684af62bd42195c3593b462bbe7eb8a9d83cafc206/
-8d72a7003e030c102958f9d8e0871fd0e0e83bca94d18178615665f4081803a6.json
-b93731aff72308a4aba32de5ee9f50dc3a2e702627b6893691c7f3f099132aca/
-manifest.json
-repositories
-
-> cat manifest.json | jq
-```
-
-</span>
-
-<span>
-
-```shellsession
-> docker image save insecure-layers-sample:latest -o image.tar | tar x
-
-> ls
-2a92470a98202bbaf6b9cbcdf569761c2c420cc85220b23190212c6847bbd685/
-4977c9e6227bbefdb259abcf3fbcd50bdcec04a2c3b1ee54af85190164c78bb6/
-771911c5128d37c35fc8c9684af62bd42195c3593b462bbe7eb8a9d83cafc206/
-8d72a7003e030c102958f9d8e0871fd0e0e83bca94d18178615665f4081803a6.json
-b93731aff72308a4aba32de5ee9f50dc3a2e702627b6893691c7f3f099132aca/
-manifest.json
-repositories
-
 > cat manifest.json | jq
 [
   {
@@ -1477,23 +1485,10 @@ repositories
   }
 ]
 ```
-
 </span>
-
 <span>
 
-```shellsession {23}
-> docker image save insecure-layers-sample:latest -o image.tar | tar x
-
-> ls
-2a92470a98202bbaf6b9cbcdf569761c2c420cc85220b23190212c6847bbd685/
-4977c9e6227bbefdb259abcf3fbcd50bdcec04a2c3b1ee54af85190164c78bb6/
-771911c5128d37c35fc8c9684af62bd42195c3593b462bbe7eb8a9d83cafc206/
-8d72a7003e030c102958f9d8e0871fd0e0e83bca94d18178615665f4081803a6.json
-b93731aff72308a4aba32de5ee9f50dc3a2e702627b6893691c7f3f099132aca/
-manifest.json
-repositories
-
+```shellsession {12}
 > cat manifest.json | jq
 [
   {
@@ -1510,7 +1505,6 @@ repositories
   }
 ]
 ```
-
 </span>
 </v-clicks>
 </div>
@@ -1546,6 +1540,50 @@ drwxr-xr-x  0 0      0           0 Nov 13 20:07 etc/
 </v-clicks>
 
 </div>
+
+---
+layout: center
+---
+
+![](/gone-for-good.png)
+
+---
+layout: center
+---
+
+![](/well-yes-but-actually-no.jpeg)
+
+---
+layout: full
+---
+
+<div class="stack">
+
+<span>
+
+```shellsession
+> docker run --rm -it insecure-layers-sample:latest \
+>           -c "cat /etc/secret.txt"
+```
+
+</span>
+
+<v-clicks>
+
+<span>
+
+```shellsession
+> docker run --rm -it insecure-layers-sample:latest \
+>           -c "cat /etc/secret.txt"
+
+cat: can't open '/etc/secret.txt': No such file or directory
+```
+
+</span>
+</v-clicks>
+
+</div>
+
 
 ---
 layout: full
@@ -1703,6 +1741,36 @@ ENTRYPOINT [ "sh" ]
 ```
 
 ---
+layout: full
+---
+
+```shellsession {|4}
+> docker build . \
+>       -t insecure-layers-sample:secret-mount \
+>       -f dockerfiles/Dockerfile.secret-example \
+>       --secret id=mysecret,src=secret.txt
+```
+
+---
+layout: section
+class: text-content
+---
+
+# Other footguns
+
+<v-clicks>
+
+Leaking secrets through ENV
+
+ENV vs ARG
+
+Not cleaning up package manager cache
+
+Running image as root user
+
+</v-clicks>
+
+---
 layout: image
 image: /stunned-unshaved-male.jpg
 ---
@@ -1738,10 +1806,9 @@ layout: section
 
 # Mainly for Java
 
-# Optimized images
-
 # Plugin for Gradle/Maven
 
+# Optimized images
 
 </v-clicks>
 
@@ -1760,6 +1827,25 @@ layout: section
 # Run `ko build`
 
 </v-clicks>
+
+---
+layout: section
+---
+
+<div>
+    <span style="font-size: 1.8em; color: green">Nice</span><br/>
+    <span style="font-size: 2.5em">No need for docker daemon</span>
+</div>
+
+---
+layout: section
+---
+
+<div>
+    <span style="font-size: 1.8em; color: red">Not so Nice</span><br/>
+
+    <span style="font-size: 2.5em">Hard to install additional dependencies</span>
+</div>
 
 ---
 layout: image
@@ -2040,6 +2126,10 @@ layout: section
 # Lower attack surface
 
 <v-clicks>
+
+# Lower storage cost
+
+# Faster download times
 
 # Reduced number of CVEs
 
