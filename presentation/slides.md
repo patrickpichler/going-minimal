@@ -1843,7 +1843,6 @@ layout: section
 
 <div>
     <span style="font-size: 1.8em; color: red">Not so Nice</span><br/>
-
     <span style="font-size: 2.5em">Hard to install additional dependencies</span>
 </div>
 
@@ -1961,7 +1960,7 @@ layout: full
 > melange build --signing-key melange.rsa
 ... Lots and lots of output ...
 
-> ls packages/
+> ls packages/aarch64/
 ```
 
 </span>
@@ -2029,7 +2028,7 @@ layout: full
 ```shellsession
 > apko build ./apko.yaml \
 >       vulnerable-awk-playground:apko \
->       vulnerable-awk-playgorund.tar
+>       vulnerable-awk-playground.tar
 ```
 
 </span>
@@ -2041,7 +2040,7 @@ layout: full
 ```shellsession
 > apko build ./apko.yaml \
 >       vulnerable-awk-playground:apko \
->       vulnerable-awk-playgorund.tar
+>       vulnerable-awk-playground.tar
 ... lots of build output ...
 ```
 
@@ -2052,7 +2051,7 @@ layout: full
 ```shellsession
 > apko build ./apko.yaml \
 >       vulnerable-awk-playground:apko \
->       vulnerable-awk-playgorund.tar
+>       vulnerable-awk-playground.tar
 ... lots of build output ...
 
 > docker load < vulnerable-awk-playground.tar
@@ -2065,7 +2064,7 @@ layout: full
 ```shellsession
 > apko build ./apko.yaml \
 >       vulnerable-awk-playground:apko \
->       vulnerable-awk-playgorund.tar
+>       vulnerable-awk-playground.tar
 ... lots of build output ...
 
 > docker load < vulnerable-awk-playground.tar
@@ -2080,7 +2079,7 @@ Loaded image: vulnerable-awk-playground:apko-arm64
 ```shellsession
 > apko build ./apko.yaml \
 >       vulnerable-awk-playground:apko \
->       vulnerable-awk-playgorund.tar
+>       vulnerable-awk-playground.tar
 ... lots of build output ...
 
 > docker load < vulnerable-awk-playground.tar
@@ -2115,6 +2114,20 @@ vulnerable-awk-playground:apko-arm64 20.8MB
 </v-clicks>
 </div>
 
+---
+layout: statement
+---
+
+# Should I use apko/melange for everything now?
+
+---
+layout: statement
+---
+
+# Probably not
+
+---
+layout: statement
 ---
 
 # Why should I even care about minimal images?
@@ -2157,6 +2170,8 @@ layout: full
 ![](/blog.png)
 
 ---
+layout: section
+---
 
 # Be mindful about base image
 
@@ -2167,6 +2182,14 @@ layout: full
 # Good alternatives to Dockerfiles exist
 
 </v-clicks>
+
+---
+layout: statement
+---
+
+## Also checkout
+# Building Container Images the Modern Way - Adrian Mouat, Chainguard
+### https://www.youtube.com/watch?v=nZLz0o4duRs
 
 ---
 
